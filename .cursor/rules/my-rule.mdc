@@ -1,0 +1,100 @@
+---
+description: 
+globs: 
+---
+# ADR 002 – Arquitetura para Sistema de Análise de Espelho de Ponto
+
+## Status
+Proposto
+
+## Contexto
+Estamos desenvolvendo um serviço que recebe como entrada um PDF contendo o espelho de ponto (folha de ponto) e, por meio de OCR, extrai as seguintes informações para cada colaborador e para cada dia:
+
+- Registro de batidas de ponto.
+- Identificação de faltas (sem qualquer batida).
+- Cálculo de atraso (primeira batida após o horário previsto).
+- Cálculo de hora extra (última batida após o horário previsto).
+
+*Requisitos e restrições identificados:*
+- O PDF pode conter texto nativo ou imagens, exigindo OCR com suporte ao idioma português.
+- Volume médio estimado de 200 colaboradores/mês.
+- A API será consumida por um dashboard web interno.
+- Garantia de unicidade de registro por (data, matrícula).
+- Documentação interativa obrigatória (Swagger/OpenAPI) para facilitar o trabalho da equipe de QA e frontend.
+
+## Decisão
+Optou-se pela implementação de uma *arquitetura modular monolítica* com padrão MVC, utilizando as seguintes tecnologias:
+
+- *Node.js + TypeScript* para desenvolvimento.
+- *Prisma ORM* para modelagem e migrações de banco de dados.
+- *MariaDB* como banco relacional.
+- *Tesseract.js* como motor de OCR com suporte em português.
+- *Swagger (OpenAPI)* para documentação interativa da API.
+- *Docker Compose* para orquestração local do ambiente (Node + MariaDB).
+
+### Organização das camadas:
+- *Controller / API Layer*: Recebe upload do PDF, valida formato e tamanho, expõe endpoints REST documentados.
+- *Service / Domain Layer*: Orquestra conversão PDF→imagem, invoca OCR, aplica parser (regex) e regras de negócio.
+- *Repository / Data Layer*: CRUD usando Prisma, com índices únicos (data, matrícula).
+- *Infrastructure / Cross-cutting*: Configuração do OCR, armazenamento temporário (sistema de arquivos ou S3), logger e tratamento de erros global.
+
+*Principais endpoints:*
+
+| Rota             | Método | Função                                                         |
+|------------------|--------|----------------------------------------------------------------|
+| POST /upload     | POST   | Recebe PDF, extraí os dados dos colaboradores e salva na tabela.    |
+| GET /attendance  | GET    | Lista registros processados, permite filtros por data e matrícula. |
+| GET /employees   | GET    | Lista colaboradores e quantidade de pontos processados.        |
+
+*Regras de negócio:*
+- Falta: ausência de batida → falta = true.
+- Atraso: delayMin = max(0, primeiraBatida − inícioPrevisto).
+- Hora extra: extraMin = max(0, últimaBatida − fimPrevisto).
+- Unicidade garantida por índice e validação pré-gravação.
+
+*Estratégias de confiabilidade e segurança:*
+- Processamento síncrono por requisição.
+- Transações atômicas com Prisma.
+- Rate-limit e validação de payload na camada controller.
+- Autenticação via JWT (opcional para ambientes internos).
+
+## Alternativas Consideradas
+1. *Python (pdfplumber + pytesseract)*  
+   - Prós: Ecossistema Python tem bibliotecas maduras para OCR e parsing.  
+   - Contras: Equipe já consolidada em Node/TS; aumento de complexidade e curva de aprendizado desnecessária.
+
+2. *Microserviço dedicado para OCR*  
+   - Prós: Escalabilidade e isolamento do OCR.  
+   - Contras: Complexidade operacional alta sem demanda atual para esse nível de escala.
+
+## Consequências
+*Benefícios:*
+- Redução do tempo de entrega (time-to-market) com uma stack única.
+- Documentação automática e interativa via Swagger.
+- Facilidade para testes unitários e integração (Jest).
+- Simplicidade na manutenção e evolução da aplicação.
+
+*Trade-offs:*
+- A abordagem monolítica pode limitar a escalabilidade futura, especialmente na parte de OCR.
+- Manter OCR em Node.js exige cuidados adicionais com tuning de memória e performance.
+
+## Ferramentas e Práticas Complementares
+- *Docker Compose* para ambiente local (Node e MariaDB).
+- *Testes*: Jest para unidade e integração.
+- *CI/CD*: GitHub Actions com etapas de lint, build, testes e migrações Prisma.
+
+## Estrutura de Diretórios
+```bash
+ponto-ocr/
+├── src/
+│   ├── controller/
+│   ├── service/
+│   ├── repository/
+│   ├── infrastructure/
+│   ├── prisma/
+│   └── app.ts
+├── tests/
+├── docker-compose.yml
+├── swagger.yaml
+├── tsconfig.json
+└── README.md

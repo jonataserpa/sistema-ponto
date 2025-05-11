@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo para armazenar informações dos colaboradores
+model Colaborador {
+  id         Int        @id @default(autoincrement())
+  matricula  String     @unique
+  nome       String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  registros  Registro[]
+
+  @@map("colaboradores")
+}
+
+// Modelo para armazenar os registros de ponto extraídos
+model Registro {
+  id            Int         @id @default(autoincrement())
+  data          DateTime    @db.Date
+  colaboradorId Int
+  batidas       Batida[]
+  falta         Boolean     @default(false)
+  atrasoMinutos Int         @default(0)
+  extraMinutos  Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  colaborador   Colaborador @relation(fields: [colaboradorId], references: [id])
+
+  @@unique([data, colaboradorId])
+  @@index([data])
+  @@map("registros")
+}
+
+// Modelo para armazenar as batidas de ponto individuais
+model Batida {
+  id          Int      @id @default(autoincrement())
+  registroId  Int
+  horario     DateTime
+  tipo        String   // ENTRADA, SAIDA_ALMOCO, RETORNO_ALMOCO, SAIDA
+  registro    Registro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([registroId])
+  @@map("batidas")
+}
+
+// Modelo para armazenar os arquivos de espelho de ponto processados
+model ArquivoProcessado {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  caminho     String
+  tamanho     Int      // Tamanho em bytes
+  hash        String   @unique // MD5 ou outro hash para evitar processamento duplicado
+  processado  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("arquivos_processados")
+} 
