@@ -1,0 +1,8 @@
+Departamento: PREFEITURA
+
+Dia     Matrícula    Nome                           Jornada                    Ponto 
+                     Obs    HT    AN    EX    EN    AT    FA
+05/05/25    886     ANA LUCIA ANDRADE PEIXOTO      08:00 - 12:00 - 13:00 - 17:00    Falta                      -      -     -     -     -     -     08:00
+05/05/25   1032     MARIA APARECIDA ALVES DE MELO                                   Segunda                    -      -     -     -     -     -     08:00
+05/05/25   6861     ELISA ESTER DE PAIVA           09:00 - 12:00 - 13:00 - 18:00    12:01 - 12:33 - 18:00      -      -     00:33 -     -     07:27
+05/05/25  12005     DARLAN VICTOR DE CASTRO E LOPES 07:00 - 12:00 - 13:00 - 16:00   07:06 - 11:57 - 12:58 - 15:59  -      -     -     -     -     -     08:00

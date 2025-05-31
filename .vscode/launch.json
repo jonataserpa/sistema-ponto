@@ -1,0 +1,73 @@
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Debug Direto (Recomendado)",
+        "type": "node",
+        "request": "launch",
+        "program": "${workspaceFolder}/backend/src/app.ts",
+        "cwd": "${workspaceFolder}/backend",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "env": {
+          "NODE_ENV": "development"
+        },
+        "outputCapture": "std",
+        "runtimeArgs": [
+          "-r", "ts-node/register"
+        ],
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "resolveSourceMapLocations": [
+          "${workspaceFolder}/**",
+          "!**/node_modules/**"
+        ]
+      },
+      {
+        "name": "Debug com Hot Reload",
+        "type": "node",
+        "request": "launch",
+        "runtimeExecutable": "npx",
+        "runtimeArgs": [
+          "ts-node-dev",
+          "--respawn",
+          "--transpile-only",
+          "--inspect=9229",
+          "--no-notify",
+          "src/app.ts"
+        ],
+        "cwd": "${workspaceFolder}/backend",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "env": {
+          "NODE_ENV": "development"
+        },
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
+        "resolveSourceMapLocations": [
+          "${workspaceFolder}/**",
+          "!**/node_modules/**"
+        ],
+        "autoAttachChildProcesses": true
+      },
+      {
+        "name": "Attach ao Processo",
+        "type": "node",
+        "request": "attach",
+        "port": 9229,
+        "address": "localhost",
+        "restart": true,
+        "protocol": "inspector",
+        "timeout": 30000,
+        "localRoot": "${workspaceFolder}/backend",
+        "remoteRoot": "${workspaceFolder}/backend",
+        "skipFiles": [
+          "<node_internals>/**"
+        ]
+      }
+    ]
+  }
+  

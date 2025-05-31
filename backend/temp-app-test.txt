@@ -1,0 +1,6 @@
+Departamento: PREFEITURA
+
+Dia     Matrícula    Nome                           Jornada                    Ponto 
+                     Obs    HT    AN    EX    EN    AT    FA
+05/05/25    886     ANA LUCIA ANDRADE PEIXOTO      08:00 - 12:00 - 13:00 - 17:00    Falta                      -      -     -     -     -     -     08:00
+05/05/25   6861     ELISA ESTER DE PAIVA           09:00 - 12:00 - 13:00 - 18:00    12:01 - 12:33 - 18:00      -      -     00:33 -     -     07:27

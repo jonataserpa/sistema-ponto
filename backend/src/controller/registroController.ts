@@ -57,7 +57,8 @@ class RegistroController {
       const registro = await registroRepository.findById(parseInt(id, 10));
       
       if (!registro) {
-        return res.status(404).json({ error: 'Registro não encontrado' });
+        res.status(404).json({ error: 'Registro não encontrado' });
+        return;
       }
       
       res.status(200).json(registro);

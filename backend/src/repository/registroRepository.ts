@@ -1,6 +1,5 @@
 import prisma from '../prisma/client';
 import { Registro, RegistroExtracted, BatidaExtracted } from '../infrastructure/types';
-import { PrismaClient } from '@prisma/client';
 
 /**
  * Repositório para operações relacionadas a registros de ponto
@@ -73,12 +72,10 @@ class RegistroRepository {
    * @returns Registro encontrado ou null
    */
   async findByDataColaborador(data: Date, colaboradorId: number): Promise<Registro | null> {
-    return prisma.registro.findUnique({
+    return prisma.registro.findFirst({
       where: {
-        data_colaboradorId: {
-          data,
-          colaboradorId
-        }
+        data,
+        colaboradorId
       },
       include: {
         colaborador: true,
@@ -94,7 +91,13 @@ class RegistroRepository {
    * @returns Registro criado
    */
   async create(
-    data: Omit<Registro, 'id' | 'createdAt' | 'updatedAt' | 'batidas'>,
+    data: {
+      data: Date;
+      colaboradorId: number;
+      falta: boolean;
+      atrasoMinutos: number;
+      extraMinutos: number;
+    },
     batidas: Omit<BatidaExtracted, 'id' | 'createdAt' | 'updatedAt' | 'registroId'>[]
   ): Promise<Registro> {
     return prisma.registro.create({
@@ -122,7 +125,11 @@ class RegistroRepository {
    */
   async update(
     id: number,
-    data: Partial<Omit<Registro, 'id' | 'createdAt' | 'updatedAt' | 'batidas'>>,
+    data: {
+      falta?: boolean;
+      atrasoMinutos?: number;
+      extraMinutos?: number;
+    },
   ): Promise<Registro> {
     return prisma.registro.update({
       where: { id },
@@ -168,7 +175,7 @@ class RegistroRepository {
       
       if (registroExistente) {
         // Atualiza o registro existente
-        const registroAtualizado = await prisma.$transaction(async (tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>) => {
+        const registroAtualizado = await prisma.$transaction(async (tx) => {
           // Exclui todas as batidas existentes
           await tx.batida.deleteMany({
             where: { registroId: registroExistente.id }

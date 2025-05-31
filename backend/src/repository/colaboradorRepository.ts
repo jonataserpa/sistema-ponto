@@ -44,7 +44,10 @@ class ColaboradorRepository {
    * @param data Dados do colaborador
    * @returns Colaborador criado
    */
-  async create(data: Omit<Colaborador, 'id' | 'createdAt' | 'updatedAt'>): Promise<Colaborador> {
+  async create(data: {
+    matricula: string;
+    nome: string;
+  }): Promise<Colaborador> {
     return prisma.colaborador.create({
       data
     });
@@ -56,7 +59,10 @@ class ColaboradorRepository {
    * @param data Dados para atualização
    * @returns Colaborador atualizado
    */
-  async update(id: number, data: Partial<Omit<Colaborador, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Colaborador> {
+  async update(id: number, data: {
+    matricula?: string;
+    nome?: string;
+  }): Promise<Colaborador> {
     return prisma.colaborador.update({
       where: { id },
       data
@@ -79,7 +85,10 @@ class ColaboradorRepository {
    * @param data Dados do colaborador
    * @returns Colaborador criado ou atualizado
    */
-  async createOrUpdate(data: Omit<Colaborador, 'id' | 'createdAt' | 'updatedAt'>): Promise<Colaborador> {
+  async createOrUpdate(data: {
+    matricula: string;
+    nome: string;
+  }): Promise<Colaborador> {
     const { matricula, nome } = data;
     
     const colaborador = await this.findByMatricula(matricula);
